@@ -1,0 +1,2 @@
+# copytrade
+Copy trade code
