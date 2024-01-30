@@ -1,0 +1,19 @@
+index: BANKNIFTY
+freeze_quantity: 900
+quantity_per_lot: 15
+spreadwidth: 500
+
+index: NIFTY
+freeze_quantity: 1800
+quantity_per_lot: 50
+spreadwidth: 200
+
+index: FINNIFTY
+freeze_quantity: 1800
+quantity_per_lot: 40
+spreadwidth: 200
+
+index: MIDCPNIFTY
+freeze_quantity: 4200
+quantity_per_lot: 75
+spreadwidth: 100
