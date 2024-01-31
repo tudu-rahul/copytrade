@@ -53,8 +53,10 @@ if __name__ == '__main__':
                 print("\n")
                 continue
             expiry: str = parts[3].strip()
+            margin_per_lot: float = float(parts[4].strip())
             spread: Spread = Spread()
             spread.create_spread(command=index + " " + strike, expiry=expiry)
+            spread.margin_per_lot = margin_per_lot
             if spread.buying_order is None or spread.selling_order is None:
                 print("Wrong trade command\n")
                 continue
@@ -62,12 +64,14 @@ if __name__ == '__main__':
             print("Entry spread details")
             print("Buying symbol: " + str(spread.buying_order.symbol))
             print("Selling symbol: " + str(spread.selling_order.symbol))
-            margin_per_lot: float = spread.get_margin_per_lot(smartapi=my_account.smartapi)
+            # margin_per_lot: float = spread.get_margin_per_lot(smartapi=my_account.smartapi)
             print("Margin per lot: Rs " + str(margin_per_lot))
             print("\n")
             freeze_quantity: int = index_details["freeze_quantity"]
             for account in accounts:
+                print("Account ID: " + str(account.account_id))
                 account.create_list_of_orders(spread=spread, freeze_quantity=freeze_quantity)
+                print("\n")
             # Execute.place_order(accounts=accounts)
         elif command_type == "EXIT":
             parts: List[str] = command.split(' ')

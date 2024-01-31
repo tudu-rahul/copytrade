@@ -3,6 +3,7 @@ from SmartApi import SmartConnect
 from order import Order
 from account import Account
 import threading
+from time import sleep
 
 
 class Execute:
@@ -128,6 +129,7 @@ class Execute:
         if status == "rejected":
             return False
         if status == "complete":
+            sleep(1)
             status, _ = Execute.place_leg(order=s_order, account=account)
             if status == "rejected":
                 Execute.revert_order(unique_orderid=unique_orderid, account=account)
@@ -169,6 +171,7 @@ class Execute:
         else:
             return "rejected", unique_orderid
         while order_status != "complete":
+            sleep(1)
             order_status = smartapi.individual_order_details(unique_orderid)["data"]
             if order_status:
                 order_status = order_status["orderstatus"]

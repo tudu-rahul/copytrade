@@ -76,8 +76,11 @@ class Account:
             return None
         order_list: list[[Order, Order]] = []
         if total_number_of_spreads is None:
-            total_number_of_spreads: int = int((self.balance*1.0)/spread.margin_per_lot) - 1
+            total_number_of_spreads: int = int((self.balance*1.0)/spread.margin_per_lot)
         spreads_per_order: int = freeze_quantity // spread.buying_order.qty
+        print("Total number of spreads: " + str(total_number_of_spreads))
+        if spread.margin_per_lot is not None:
+            print("Total capital used: Rs " + str(total_number_of_spreads * 1.0 * spread.margin_per_lot))
         if total_number_of_spreads > 0:
             while total_number_of_spreads:
                 b_order: Order = deepcopy(spread.buying_order)
