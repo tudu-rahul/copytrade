@@ -25,7 +25,7 @@ if __name__ == '__main__':
         p&l:
             PNL
     """
-    accounts, defaulters, my_account_id = Login.read_credentials_and_login()
+    accounts, my_account_id = Login.read_credentials_and_login()
     if my_account_id is None:
         exit(1)
     TradingSymbols.initialize()
@@ -39,7 +39,6 @@ if __name__ == '__main__':
         print("Balance: Rs " + str(account.balance) + "\n")
     print("\n")
     print("Total balance: Rs " + str(total_balance))
-    print("Defaulters: " + str(defaulters))
     print("Total valid clients: " + str(len(accounts)))
     print("------------------------------------------------------------\n")
     while True:
