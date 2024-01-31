@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 print("Account ID: " + str(account.account_id))
                 account.create_list_of_orders(spread=spread, freeze_quantity=freeze_quantity)
                 print("\n")
-            # Execute.place_order(accounts=accounts)
+            Execute.place_order(accounts=accounts)
         elif command_type == "EXIT":
             parts: List[str] = command.split(' ')
             index: str = parts[1].strip()
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                 account.create_list_of_orders(spread=spread,
                                               freeze_quantity=freeze_quantity,
                                               total_number_of_spreads=result["total_number_of_spreads"])
-            # Execute.place_order(accounts=accounts)
+            Execute.place_order(accounts=accounts)
         elif command_type == "DETAILS":
             my_account_position: List[Dict] = my_account.get_current_positions()
             sleep(1)
