@@ -3,6 +3,12 @@ from SmartApi import SmartConnect
 import pyotp
 from account import Account
 from typing import List, Dict, Optional
+import logging
+import constants as Const
+from time import sleep
+import sys
+
+log = logging.getLogger()
 
 
 class Login:
@@ -14,7 +20,7 @@ class Login:
     Methods
     -------
     login(api_key:str = None, totp_qr: str = None, username: str = None, pin: str = None) ->
-        (Optional[SmartConnect], Optional[str], Optional[str]):
+        (Optional[SmartConnect], Optional[str], Optional[str], Dict[str, bool]):
         Login to Angel One for any particular account
     read_credentials_and_login() -> (List[Account], Optional[str]):
         Read credentials from file and login
@@ -22,7 +28,7 @@ class Login:
 
     @staticmethod
     def login(api_key: str = None, totp_qr: str = None, username: str = None, pin: str = None) -> (
-            Optional[SmartConnect], Optional[str], Optional[str]):
+            Optional[SmartConnect], Optional[str], Optional[str], Dict[str, bool]):
         """
         Login to Angel One for any particular account.
 
@@ -41,21 +47,37 @@ class Login:
 
         Returns
         -------
-        Optional[SmartConnect], Optional[str], Optional[str]:
-            smartapi, refresh token, account name
+        Optional[SmartConnect], Optional[str], Optional[str], Dict[str, bool]:
+            smartapi, refresh token, account name, exception type
         """
-        smartapi: SmartConnect = SmartConnect(api_key)
         totp: str = pyotp.TOTP(totp_qr).now()
-        data: Dict = smartapi.generateSession(username, pin, totp)["data"]
+        exception_type: Dict[str, bool] = {}
+        try:
+            smartapi: SmartConnect = SmartConnect(api_key)
+            data: Optional[Dict] = smartapi.generateSession(username, pin, totp)["data"]
+        except Exception as exp:
+            log.exception("Session generation exception: " + str(exp))
+            exception_type[Const.SESSION_GENERATION_EXCEPTION] = True
+            return None, None, None, exception_type
         if data is None:
-            return None, None, None
+            return None, None, None, exception_type
         refresh_token: str = data["refreshToken"]
-        profile: Dict = smartapi.getProfile(refresh_token)["data"]
+        try:
+            profile: Optional[Dict] = smartapi.getProfile(refresh_token)["data"]
+        except Exception as exp:
+            log.exception("Profile fetching exception: " + str(exp))
+            exception_type[Const.PROFILE_FETCHING_EXCEPTION] = True
+            return None, None, None, exception_type
         if profile is None:
-            return None, None, None
-        smartapi.generateToken(refresh_token)
+            return None, None, None, exception_type
+        try:
+            smartapi.generateToken(refresh_token)
+        except Exception as exp:
+            log.exception("Token generation exception: " + str(exp))
+            exception_type[Const.TOKEN_GENERATION_EXCEPTION] = True
+            return None, None, None, exception_type
 
-        return smartapi, refresh_token, profile["name"]
+        return smartapi, refresh_token, profile["name"], exception_type
 
     @staticmethod
     def read_credentials_and_login() -> (List[Account], Optional[str]):
@@ -63,7 +85,8 @@ class Login:
         Read credentials from file and login
 
         For each account, username, api key, pin and totp_qr are fetched and an attempt to login is made.
-        If successful, a smartconnect object and refresh token are generated. All credentials are stored in credentials.txt
+        If successful, a smartconnect object and refresh token are generated.
+        All credentials are stored in credentials.txt
 
         Returns
         -------
@@ -76,6 +99,7 @@ class Login:
         username: Optional[str] = None
         pin: Optional[str] = None
         my_account_id: Optional[str] = None
+        exception_present: bool = False
         for lin in credentials_file:
             if lin[0] == "#":
                 continue
@@ -94,11 +118,51 @@ class Login:
                 pin = value
             elif key == "totp_qr":
                 totp_qr: str = value
-                smartapi, refresh_token, name = Login.login(api_key=api_key, totp_qr=totp_qr, username=username,
-                                                            pin=pin)
+                exception_count: int = 0
+                while True:
+                    smartapi, refresh_token, name, exception_type = Login.login(api_key=api_key,
+                                                                            totp_qr=totp_qr,
+                                                                            username=username,
+                                                                            pin=pin)
+                    if exception_type != {}:
+                        if not exception_present:
+                            exception_present = True
+                            print("Login exception occurring: " + list(exception_type.keys())[0]
+                                  + ": " + str(exception_count))
+                        else:
+                            exception_count += 1
+                            sys.stdout.write("\033[F")
+                            sys.stdout.write("\033[K")
+                            print("Login exception occurring: " + list(exception_type.keys())[0]
+                                  + ": " + str(exception_count))
+                    elif exception_type == {}:
+                        if exception_present:
+                            exception_present = False
+                            print("Login exception solved.\n")
+                        break
+                    sleep(1)
+                if smartapi is None or refresh_token is None or name is None:
+                    continue
                 current_account: Account = Account()
                 current_account.account_id = username
-                rms: Optional[Dict] = smartapi.rmsLimit()["data"]
+                exception_count = 0
+                rms_exception_present: bool = False
+                while True:
+                    try:
+                        rms: Optional[Dict] = smartapi.rmsLimit()["data"]
+                        if rms_exception_present:
+                            print("RMS exception solved.\n")
+                            rms_exception_present = False
+                        break
+                    except Exception as exp:
+                        log.exception("RMS exception: " + str(exp))
+                        exception_count += 1
+                        if rms_exception_present:
+                            sys.stdout.write("\033[F")
+                            sys.stdout.write("\033[K")
+                        rms_exception_present = True
+                        print("RMS exception occurring: " + str(exception_count))
+                    sleep(1)
                 if rms is None:
                     continue
                 current_account.balance = float(rms["availablecash"])

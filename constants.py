@@ -1,0 +1,5 @@
+SESSION_GENERATION_EXCEPTION = "session_generation_exception"
+PROFILE_FETCHING_EXCEPTION = "profile_fetching_exception"
+TOKEN_GENERATION_EXCEPTION = "token_generation_exception"
+RMS_EXCEPTION = "rms_exception"
+PLACE_ORDER_FULL_RESPONSE_EXCEPTION = "place_order_full_response_exception"

@@ -3,6 +3,11 @@ from order import Order
 from copy import deepcopy
 from SmartApi import SmartConnect
 from typing import Optional, Dict, List
+import logging
+from time import sleep
+import sys
+
+log = logging.getLogger()
 
 
 class Account:
@@ -76,7 +81,7 @@ class Account:
             return None
         order_list: list[[Order, Order]] = []
         if total_number_of_spreads is None:
-            total_number_of_spreads: int = int((self.balance*1.0)/spread.margin_per_lot) - 1
+            total_number_of_spreads: int = int((self.balance*1.0)/spread.margin_per_lot)
         spreads_per_order: int = freeze_quantity // spread.buying_order.qty
         print("Total number of spreads: " + str(total_number_of_spreads))
         if spread.margin_per_lot is not None:
@@ -119,7 +124,22 @@ class Account:
             [{ "symbol_name": str,  "strike": str, "quantity": str }
         """
         smartapi: SmartConnect = self.smartapi
-        position = smartapi.position()["data"]
+        position_exception_present: bool = False
+        while True:
+            try:
+                position = smartapi.position()["data"]
+                if position_exception_present:
+                    print("Position exception in details solved.\n")
+                    position_exception_present = False
+                break
+            except Exception as exp:
+                log.exception("Position exception in details: " + str(exp))
+                if position_exception_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                position_exception_present = True
+                print("Position exception in details occurring.")
+                sleep(1)
         if position is None:
             return []
         strike_check: int = 0
@@ -160,9 +180,24 @@ class Account:
             Realised, unrealised, overall p&l
         """
         smartapi: SmartConnect = self.smartapi
-        position = smartapi.position()["data"]
+        position_exception_present: bool = False
+        while True:
+            try:
+                position = smartapi.position()["data"]
+                if position_exception_present:
+                    print("Position exception in pnl solved.\n")
+                    position_exception_present = False
+                break
+            except Exception as exp:
+                log.exception("Position exception in pnl: " + str(exp))
+                if position_exception_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                position_exception_present = True
+                print("Position exception in pnl occurring.")
+                sleep(1)
         if position is None:
-            return 0.0
+            return 0.0, 0.0, 0.0
         realised: float = 0.0
         unrealised: float = 0.0
         for single_position in position:
@@ -185,7 +220,22 @@ class Account:
             { "buying_symbol": str, "selling_symbol": str, "total_number_of_spreads": int }
         """
         smartapi: SmartConnect = self.smartapi
-        position = smartapi.position()["data"]
+        position_exception_present: bool = False
+        while True:
+            try:
+                position = smartapi.position()["data"]
+                if position_exception_present:
+                    print("Position exception in total number of spreads solved.\n")
+                    position_exception_present = False
+                break
+            except Exception as exp:
+                log.exception("Position exception in total number of spreads: " + str(exp))
+                if position_exception_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                position_exception_present = True
+                print("Position exception in total number of spreads occurring.")
+                sleep(1)
         if position is None:
             return None
         quantity: int = 0

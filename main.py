@@ -7,6 +7,9 @@ from execute import Execute
 from account import Account
 from time import sleep
 import os
+import logging
+
+logging.basicConfig(filename='all.log', encoding='utf-8', level=logging.DEBUG)
 
 
 if __name__ == '__main__':
@@ -48,11 +51,8 @@ if __name__ == '__main__':
         command_type: str = command.split(' ')[0]
         if command_type == "ENTRY":
             parts: List[str] = command.split(' ')
-            # if len(parts) != 5:
-            #     print("Incomplete command")
-            #     continue
-            if len(parts) != 4:
-                print("Incomplete command\n")
+            if len(parts) != 5:
+                print("Incomplete command")
                 continue
             index: str = parts[1].strip()
             strike: str = parts[2].strip()
@@ -62,10 +62,10 @@ if __name__ == '__main__':
                 print("\n")
                 continue
             expiry: str = parts[3].strip()
-            # margin_per_lot: float = float(parts[4].strip())
+            margin_per_lot: float = float(parts[4].strip())
             spread: Spread = Spread()
             spread.create_spread(command=index + " " + strike, expiry=expiry)
-            # spread.margin_per_lot = margin_per_lot
+            spread.margin_per_lot = margin_per_lot
             if spread.buying_order is None or spread.selling_order is None:
                 print("Wrong trade command\n")
                 continue
@@ -73,7 +73,6 @@ if __name__ == '__main__':
             print("Entry spread details")
             print("Buying symbol: " + str(spread.buying_order.symbol))
             print("Selling symbol: " + str(spread.selling_order.symbol))
-            margin_per_lot: float = spread.get_margin_per_lot(smartapi=my_account.smartapi)
             print("Margin per lot: Rs " + str(margin_per_lot))
             print("\n")
             freeze_quantity: int = index_details["freeze_quantity"]
@@ -122,9 +121,13 @@ if __name__ == '__main__':
             Execute.place_order(accounts=accounts)
         elif command_type == "DETAILS":
             my_account_position: List[Dict] = my_account.get_current_positions()
+            if not my_account_position:
+                print("No current position in primary account.\n")
+                continue
             verification_data: Dict[str, Dict] = {}
             for position in my_account_position:
                 verification_data[position["strike"]] = position
+            sleep(1)
             while True:
                 incomplete_trades: int = 0
                 position_string: str = ""
@@ -149,7 +152,6 @@ if __name__ == '__main__':
                 print("\n")
                 for position_string in position_string_list:
                     print(position_string)
-                sleep(1)
         elif command_type == "PNL":
             while True:
                 total_realised: float = 0.0
@@ -173,6 +175,5 @@ if __name__ == '__main__':
                 print("\n")
                 for pnl_string in pnl_string_list:
                     print(pnl_string)
-                sleep(1)
         else:
             print("Wrong command\n")

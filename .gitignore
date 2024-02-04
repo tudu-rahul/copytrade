@@ -161,7 +161,7 @@ cython_debug/
 
 credentials.txt
 logs
-
+all.log
 ### IntelliJ IDEA ###
 .idea
 *.iws

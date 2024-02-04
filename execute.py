@@ -4,6 +4,10 @@ from order import Order
 from account import Account
 import threading
 from time import sleep
+import logging
+import sys
+
+log = logging.getLogger()
 
 
 class Execute:
@@ -100,6 +104,7 @@ class Execute:
                 break
             start = end
             end = min(start + 6, len(all_threads))
+        print("All orders placed for " + str(account.account_name) + "\n")
 
         return None
 
@@ -159,24 +164,48 @@ class Execute:
             Status, unique order-id
         """
         smartapi: SmartConnect = account.smartapi
-        order_response: Optional[Dict] = smartapi.placeOrderFullResponse(order.__dict__)["data"]
+        buying_order_exception_present: bool = False
+        while True:
+            try:
+                order_response: Optional[Dict] = smartapi.placeOrderFullResponse(order.__dict__)["data"]
+                if buying_order_exception_present:
+                    print("Buying order exception solved.\n")
+                    buying_order_exception_present = False
+                break
+            except Exception as exp:
+                log.exception("Buying order exception: " + str(exp))
+                if buying_order_exception_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                buying_order_exception_present = True
+                print("Buying order exception occurring.")
+            sleep(1)
         unique_orderid: Optional[str] = None
         if order_response:
             unique_orderid = order_response["uniqueorderid"]
         else:
             return "rejected", unique_orderid
-        order_status: Optional[Dict] = smartapi.individual_order_details(unique_orderid)["data"]
-        if order_status:
-            order_status = order_status["orderstatus"]
-        else:
-            return "rejected", unique_orderid
+        order_status: Optional[str] = None
+        order_detail_exception_present: bool = False
         while order_status != "complete":
-            sleep(1)
-            order_status = smartapi.individual_order_details(unique_orderid)["data"]
-            if order_status:
-                order_status = order_status["orderstatus"]
-            if order_status == "rejected":
-                return "rejected", unique_orderid
+            try:
+                order_data: Optional[Dict] = smartapi.individual_order_details(unique_orderid)["data"]
+                if order_detail_exception_present:
+                    print("Order detail exception solved.\n")
+                    order_detail_exception_present = False
+                if order_data:
+                    order_status = order_data["orderstatus"]
+                if order_status == "rejected":
+                    return "rejected", unique_orderid
+            except Exception as exp:
+                log.exception("Order detail exception: " + str(exp))
+                if order_detail_exception_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                order_detail_exception_present = True
+                print("Order details exception occurring.")
+                order_status = None
+                sleep(1)
 
         return "complete", unique_orderid
 
@@ -200,7 +229,22 @@ class Execute:
         bool
         """
         smartapi: SmartConnect = account.smartapi
-        order_data: Dict = smartapi.individual_order_details(unique_orderid)["data"]
+        order_detail_exception_in_revert_present = False
+        while True:
+            try:
+                order_data: Optional[Dict] = smartapi.individual_order_details(unique_orderid)["data"]
+                if order_detail_exception_in_revert_present:
+                    print("Order detail exception in revert solved.\n")
+                    order_detail_exception_in_revert_present = False
+                break
+            except Exception as exp:
+                log.exception("Order detail exception in revert: " + str(exp))
+                if order_detail_exception_in_revert_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                order_detail_exception_in_revert_present = True
+                print("Exception while getting individual order details. " + str(exp) + "\n")
+                sleep(1)
         if order_data:
             reverting_order: Order = Order(quantity=int(order_data["quantity"]),
                                            symbol=order_data["tradingsymbol"],
