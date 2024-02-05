@@ -243,6 +243,8 @@ class Account:
         selling_symbol: Optional[str] = None
         lotsize: Optional[int] = None
         for single_position in position:
+            if int(single_position["netqty"]) == 0:
+                continue
             if quantity == 0:
                 quantity = int(single_position["netqty"])
                 temp_quantity = quantity
