@@ -95,15 +95,20 @@ class Login:
         """
         credentials_file = codecs.open("credentials.txt", "r")
         accounts: List[Account] = []
-        api_key: Optional[str] = None
-        username: Optional[str] = None
-        pin: Optional[str] = None
         my_account_id: Optional[str] = None
+        username: Optional[str] = None
+        api_key: Optional[str] = None
+        pin: Optional[str] = None
+        capital_to_use: Optional[float] = None
         exception_present: bool = False
         for lin in credentials_file:
             if lin[0] == "#":
                 continue
             if len(lin.strip()) == 0:
+                username = None
+                api_key = None
+                pin = None
+                capital_to_use = None
                 continue
             key: str = lin.split(':')[0].strip()
             value: str = lin.split(':')[1].strip()
@@ -116,6 +121,8 @@ class Login:
                 api_key = value
             elif key == "pin":
                 pin = value
+            elif key == "capital_to_use":
+                capital_to_use = float(value)
             elif key == "totp_qr":
                 totp_qr: str = value
                 exception_count: int = 0
@@ -145,6 +152,7 @@ class Login:
                     continue
                 current_account: Account = Account()
                 current_account.account_id = username
+                current_account.capital_to_use = capital_to_use
                 exception_count = 0
                 rms_exception_present: bool = False
                 while True:
@@ -166,6 +174,10 @@ class Login:
                 if rms is None:
                     continue
                 current_account.balance = float(rms["availablecash"])
+                if current_account.capital_to_use is None:
+                    current_account.capital_to_use = current_account.balance
+                else:
+                    current_account.capital_to_use = min(current_account.capital_to_use, current_account.balance)
                 current_account.account_name = name
                 current_account.smartapi = smartapi
                 current_account.refresh_token = refresh_token

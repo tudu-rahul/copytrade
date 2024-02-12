@@ -2,6 +2,12 @@ from trading_symbols import TradingSymbols
 from index import Index
 from order import Order
 from typing import Dict, Optional
+from SmartApi import SmartConnect
+import logging
+import sys
+from time import sleep
+
+log = logging.getLogger()
 
 
 class Spread:
@@ -154,6 +160,48 @@ class Spread:
         buying_token: Optional[str] = TradingSymbols.get_token(symbol=buying_symbol)
 
         return buying_symbol, buying_token
+
+    def get_margin_per_lot(self, smartapi: SmartConnect = None) -> Optional[float]:
+        """
+        Gets the margin required to place one lot of the spread
+
+        Parameters
+        ----------
+        smartapi: SmartConnect, default: None
+            SmartConnect object to connect to Angel One
+        Returns
+        -------
+        Optional[float]:
+            Margin required to place one lot of spread
+        """
+        if smartapi is None:
+            return None
+        params: Dict = {"positions": []}
+        params["positions"].append(self.buying_order.__dict__)
+        params["positions"].append(self.selling_order.__dict__)
+        margin_exception_present: bool = False
+        while True:
+            try:
+                data: Dict = smartapi.getMarginApi(params=params)["data"]
+                if data is None:
+                    return None
+                if margin_exception_present:
+                    print("Margin exception solved.\n")
+                    margin_exception_present = False
+                break
+            except Exception as e:
+                log.exception("Margin exception: " + str(e))
+                if margin_exception_present:
+                    sys.stdout.write("\033[F")
+                    sys.stdout.write("\033[K")
+                margin_exception_present = True
+                print("Margin exception occurring.")
+            sleep(1)
+
+        margin_per_lot: float = float(data["totalMarginRequired"])
+        self.margin_per_lot = margin_per_lot
+
+        return margin_per_lot
 
     def reverse(self) -> None:
         """

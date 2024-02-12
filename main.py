@@ -28,6 +28,7 @@ if __name__ == '__main__':
         p&l:
             PNL
     """
+    print("\n")
     accounts, my_account_id = Login.read_credentials_and_login()
     if my_account_id is None:
         exit(1)
@@ -39,6 +40,7 @@ if __name__ == '__main__':
             my_account = account
         total_balance += account.balance
         print(str(account.account_name) + " successfully logged in")
+        print("Capital to use: Rs " + str(account.capital_to_use))
         print("Balance: Rs " + str(account.balance) + "\n")
     print("\n")
     print("Total balance: Rs " + str(total_balance))
@@ -51,7 +53,7 @@ if __name__ == '__main__':
         command_type: str = command.split(' ')[0]
         if command_type == "ENTRY":
             parts: List[str] = command.split(' ')
-            if len(parts) != 5:
+            if len(parts) != 4:
                 print("Incomplete command")
                 continue
             index: str = parts[1].strip()
@@ -62,10 +64,9 @@ if __name__ == '__main__':
                 print("\n")
                 continue
             expiry: str = parts[3].strip()
-            margin_per_lot: float = float(parts[4].strip())
             spread: Spread = Spread()
             spread.create_spread(command=index + " " + strike, expiry=expiry)
-            spread.margin_per_lot = margin_per_lot
+            spread.get_margin_per_lot(smartapi=my_account.smartapi)
             if spread.buying_order is None or spread.selling_order is None:
                 print("Wrong trade command\n")
                 continue
@@ -73,7 +74,7 @@ if __name__ == '__main__':
             print("Entry spread details")
             print("Buying symbol: " + str(spread.buying_order.symbol))
             print("Selling symbol: " + str(spread.selling_order.symbol))
-            print("Margin per lot: Rs " + str(margin_per_lot))
+            print("Margin per lot: Rs " + str(spread.margin_per_lot))
             print("\n")
             freeze_quantity: int = index_details["freeze_quantity"]
             for account in accounts:

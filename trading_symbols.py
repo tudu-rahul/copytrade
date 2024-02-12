@@ -7,6 +7,7 @@ symbol_map: Dict = {}
 class TradingSymbols:
     """
     A class to manage trading symbols
+    download link: https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json
 
     ...
 
