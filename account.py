@@ -199,7 +199,7 @@ class Account:
                     sys.stdout.write("\033[K")
                 position_exception_present = True
                 print("Position exception in pnl occurring.")
-                sleep(1)
+            sleep(1)
         if position is None:
             return 0.0, 0.0, 0.0
         realised: float = 0.0
@@ -239,7 +239,7 @@ class Account:
                     sys.stdout.write("\033[K")
                 position_exception_present = True
                 print("Position exception in total number of spreads occurring.")
-                sleep(1)
+            sleep(1)
         if position is None:
             return None
         quantity: int = 0

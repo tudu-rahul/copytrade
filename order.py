@@ -44,8 +44,8 @@ class Order:
         self.tradingsymbol: str = symbol
         self.exchange: str = "NFO"
         self.price: float = 0
-        self.productType: str = "CARRYFORWARD"
-        self.producttype: str = "CARRYFORWARD"
+        self.productType: str = "INTRADAY"
+        self.producttype: str = "INTRADAY"
         self.duration: str = "DAY"
         self.ordertype: str = "MARKET"
         self.quantity: str = str(quantity)
