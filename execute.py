@@ -45,10 +45,6 @@ class Execute:
         ---------
         accounts : List[Account], default: None
             List of accounts where orders have to be placed
-
-        Returns
-        -------
-        None
         """
         all_threads: List[threading.Thread] = []
         for account in accounts:
@@ -75,10 +71,6 @@ class Execute:
         ----------
         account : Account, default: None
             Account where order has to be placed
-
-        Returns
-        -------
-        None
         """
         order_list: Optional[list[[Order, Order]]] = account.orders
         all_threads: List[threading.Thread] = []
@@ -104,7 +96,9 @@ class Execute:
                 break
             start = end
             end = min(start + 6, len(all_threads))
-        print("All orders placed for " + str(account.account_name) + "\n")
+        name: str = str(account.account_name)
+        name = name[:3] + "*****"
+        print("All orders placed for " + name + "\n")
 
         return None
 

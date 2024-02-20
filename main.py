@@ -36,11 +36,13 @@ if __name__ == '__main__':
         if account.account_id == my_account_id:
             my_account = account
         total_balance += account.balance
-        print(str(account.account_name) + " successfully logged in")
+        name: str = str(account.account_name)
+        name = name[:3] + "*****"
+        print(name + " successfully logged in")
         print("Capital to use: Rs " + str(account.capital_to_use))
         print("Balance: Rs " + str(account.balance) + "\n")
     print("\n")
-    print("Total balance: Rs " + str(total_balance))
+    # print("Total balance: Rs " + str(total_balance))
     print("Total valid clients: " + str(len(accounts)))
     print("------------------------------------------------------------\n")
     while True:
