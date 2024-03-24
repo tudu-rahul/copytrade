@@ -66,6 +66,9 @@ be placed and then the selling leg. Each pair of buying-selling legs, will be pl
 quantity.</br>
 In case buying leg fails to execute, the selling leg is not placed. If the selling leg fails to execute, the 
 corresponding buying leg of that pair will be reverted.</br>
+Once entry is done, the exit command will be written into exit_file.txt</br>
+In case you want to exit manually, you can copy the command from the file and exit manually. Once autoexit runs 
+successfully or manual exit is done, the exit_file.txt will become empty again.</br>
 
 ### To place an exit trade
 
