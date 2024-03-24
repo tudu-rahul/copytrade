@@ -1,13 +1,11 @@
 # copytrade
-Copy trade code</br>
 This code places only credit spreads in all the accounts mentioned.</br>
 Please note, that this code does not guarantee profits in Options trading. Strategy is something that you need to
-figure on your own.
+figure out on your own.
 
 ## Table of contents
 - Installation and setup
 - Commands
-- Code
 
 ## Installation and setup
 This code is tested in a python3.11 and pip3.11
@@ -112,6 +110,3 @@ trigger the exit command in all the accounts.</br>
 While running autoexit in a session, if you run PNL or DETAILS in some other session, you will see exception message in
 all the sessions. The reason is each session will try to fetch the current positions, which will hit the rate limit of
 the API.
-
-## Code
-This section will explain the code in brief, which will help you in tweaking the parameters if required.
