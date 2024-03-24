@@ -5,6 +5,7 @@ figure out on your own.
 
 ## Table of contents
 - Installation and setup
+- Files
 - Commands
 
 ## Installation and setup
