@@ -76,7 +76,6 @@ class Login:
             log.exception("Token generation exception: " + str(exp))
             exception_type[Const.TOKEN_GENERATION_EXCEPTION] = True
             return None, None, None, exception_type
-
         return smartapi, refresh_token, profile["name"], exception_type
 
     @staticmethod

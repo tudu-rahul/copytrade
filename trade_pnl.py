@@ -18,7 +18,7 @@ def pnl(accounts: List[Account] = None) -> None:
         total_unrealised: float = 0.0
         total_pnl: float = 0.0
         pnl_string_list: List[str] = []
-        pnl_string: str = "Account ID\t\t\t     Realised\t\t\t     Unrealised\t\t\t     Current P&L\n"
+        pnl_string: str = "Account ID\t\t\tRealised\t\t\tUnrealised\t\t\tCurrent P&L\n"
         pnl_string_list.append(pnl_string)
         for account in accounts:
             realised, unrealised, current_pnl = account.get_pnl()
@@ -27,7 +27,7 @@ def pnl(accounts: List[Account] = None) -> None:
             total_pnl += current_pnl
             account_id: str = account.account_id
             account_id = "*****" + account_id[-3:]
-            pnl_string = (account_id + "\t\t\t\t" + str(realised) + "\t\t\t\t" + str(unrealised)
+            pnl_string = (account_id + "\t\t\t" + str(realised) + "\t\t\t\t" + str(unrealised)
                           + "\t\t\t\t" + str(current_pnl) + "\n")
             pnl_string_list.append(pnl_string)
         sleep(1)

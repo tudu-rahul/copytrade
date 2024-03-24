@@ -154,6 +154,8 @@ class Account:
             symbol_name: str = single_position["symbolname"]
             strike: str = str(int(float(single_position["strikeprice"]))) + " " + single_position["optiontype"]
             quantity: int = int(single_position["netqty"])
+            if quantity == 0:
+                continue
             if verification_data is not None:
                 verification_strike_data = verification_data[strike]
                 if int(verification_strike_data["quantity"]) != 0:
